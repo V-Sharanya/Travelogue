@@ -1,0 +1,20 @@
+:root {
+  --bg-main: #F5F7FF;
+  --bg-card: #FFFFFF;
+  --bg-muted: #EEF1FF;
+
+  --text-primary: #1F2937;
+  --text-secondary: #6B7280;
+
+  --purple-grad: linear-gradient(135deg, #7C6CF2, #9F8CFF);
+  --blue-grad:   linear-gradient(135deg, #5AA9FF, #7EC8FF);
+  --orange-grad: linear-gradient(135deg, #FFB86C, #FFD39A);
+  --pink-grad:   linear-gradient(135deg, #FF7EB3, #FFA6C9);
+
+  --layout-bg: #ffffff;
+  --layout-border: #e5e7eb;
+  --layout-hover: #f3f4f6;
+
+  --layout-text: #111827;
+  --layout-text-muted: #6b7280;
+}
