@@ -68,3 +68,21 @@ backend/
 ```bash
 git clone <repo-url>
 cd backend
+2. Create virtual environment
+python -m venv venv
+venv\Scripts\activate
+
+3. Install dependencies
+pip install -r requirements.txt
+
+4. Configure environment variables
+
+Create a .env file:
+
+DB_HOST=localhost
+DB_USER=your_user
+DB_PASSWORD=your_password
+DB_NAME=travelogue_db
+
+5. Run the server
+uvicorn main:app --reload
