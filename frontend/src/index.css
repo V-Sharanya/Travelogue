@@ -11,7 +11,17 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  
+  --bg-main: #f5f7fb;
+  --bg-card: #ffffff;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --primary: #2563eb;
+  --border: #e5e7eb;
 }
+
+
 
 a {
   font-weight: 500;

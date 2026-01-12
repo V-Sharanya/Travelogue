@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "./components/layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
-import Places from "./pages/Places"; // ✅ THIS WAS MISSING
+import Places from "./pages/CreatePlace"; // ✅ THIS WAS MISSING
 
 function App() {
   return (
