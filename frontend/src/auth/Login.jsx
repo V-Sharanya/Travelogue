@@ -1,21 +1,27 @@
 import { useState } from "react";
-import API from "../api/api";
+import { useAuth } from "./useAuth";
+
 
 export default function Login() {
-  const [form, setForm] = useState({ email: "", password: "" });
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const submit = async (e) => {
-    e.preventDefault();
-    const res = await API.post("/auth/login", form);
-    localStorage.setItem("token", res.data.access_token);
-    alert("Logged in");
+  const submit = async () => {
+    try {
+      await login(email, password);
+    } catch (err) {
+      console.error(err.response?.data);
+      alert("Invalid credentials");
+    }
   };
 
   return (
-    <form onSubmit={submit}>
-      <input placeholder="Email" onChange={(e) => setForm({ ...form, email: e.target.value })} />
-      <input type="password" placeholder="Password" onChange={(e) => setForm({ ...form, password: e.target.value })} />
-      <button>Login</button>
-    </form>
+    <div>
+      <h2>Login</h2>
+      <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
+      <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
+      <button onClick={submit}>Login</button>
+    </div>
   );
 }

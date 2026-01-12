@@ -1,19 +1,27 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import MainLayout from "./components/layout/MainLayout";
-import Dashboard from "./pages/Dashboard";
-import Places from "./pages/CreatePlace"; // ✅ THIS WAS MISSING
+import { AuthProvider } from "./auth/AuthContext";
+import { useAuth } from "./auth/useAuth";
 
-function App() {
+import Login from "./auth/Login";
+import Signup from "./auth/Signup";
+
+function Home() {
+  const { user, logout } = useAuth();
+
+  if (!user) return <Login />;
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/places" element={<Places />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <div>
+      <h2>Welcome {user.name}</h2>
+      <button onClick={logout}>Logout</button>
+    </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <AuthProvider>
+      <Home />
+      <Signup />
+    </AuthProvider>
+  );
+}
