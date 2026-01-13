@@ -1,16 +1,26 @@
 import { useState } from "react";
 import { useAuth } from "./useAuth";
+import { useNavigate } from "react-router-dom";
 import "./Auth.css";
 
 export default function Login({ onSwitch }) {
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const submit = async (e) => {
     e.preventDefault();
     try {
-      await login(email, password);
+      const user = await login(email, password);
+
+      // 🔑 ROLE-BASED REDIRECT (FIX)
+      if (user.role === "admin") {
+        navigate("/admin/places", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
+
     } catch (err) {
       console.error(err.response?.data);
       alert("Invalid credentials");
@@ -21,41 +31,19 @@ export default function Login({ onSwitch }) {
     <div className="auth-page">
       <div className="auth-card">
         <h2 className="auth-title">Welcome Back</h2>
-        <p className="auth-subtitle">
-          Login to continue exploring Travelogue
-        </p>
 
         <form className="auth-form" onSubmit={submit}>
-          <div>
-            <label>Email</label>
-            <input
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
+          <label>Email</label>
+          <input value={email} onChange={e => setEmail(e.target.value)} />
 
-          <div>
-            <label>Password</label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+          <label>Password</label>
+          <input type="password" value={password} onChange={e => setPassword(e.target.value)} />
 
-          <button className="auth-button" type="submit">
-            Login
-          </button>
+          <button className="auth-button">Login</button>
         </form>
 
         <div className="auth-footer">
-          Don’t have an account?{" "}
-          <span onClick={onSwitch}>Sign up</span>
+          Don’t have an account? <span onClick={onSwitch}>Sign up</span>
         </div>
       </div>
     </div>

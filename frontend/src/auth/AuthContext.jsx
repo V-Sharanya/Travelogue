@@ -32,14 +32,15 @@ export function AuthProvider({ children }) {
 
   // ✅ LOGIN FUNCTION (THIS WAS MISSING)
   const login = async (email, password) => {
-    const res = await API.post("/auth/login", { email, password });
+  const res = await API.post("/auth/login", { email, password });
+  localStorage.setItem("token", res.data.access_token);
 
-    // MUST be access_token
-    localStorage.setItem("token", res.data.access_token);
+  const me = await API.get("/auth/me");
+  setUser(me.data);
 
-    const me = await API.get("/auth/me");
-    setUser(me.data);
-  };
+  return me.data; // 🔑 IMPORTANT
+};
+
 
   // ✅ LOGOUT FUNCTION
   const logout = () => {

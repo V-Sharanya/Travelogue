@@ -21,10 +21,12 @@ class UserOut(BaseModel):
     id: int
     name: str
     email: EmailStr
+    role: str            # 🔑 ADD THIS
     created_at: datetime
 
     class Config:
         from_attributes = True
+
 
 
 class LoginRequest(BaseModel):
