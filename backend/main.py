@@ -100,15 +100,73 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+from jose import JWTError
+
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ):
-    token = credentials.credentials
-    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    user_id = payload.get("sub")
-    return crud.get_user_by_id(db, int(user_id))
+    try:
+        token = credentials.credentials
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+        user = crud.get_user_by_id(db, int(user_id))
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+
+        return user
+
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
 
 @app.get("/auth/me", response_model=schemas.UserOut)
 def read_current_user(current_user = Depends(get_current_user)):
     return current_user
+
+def get_current_admin(
+    current_user = Depends(get_current_user)
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user
+
+# -------- ADMIN PLACES --------
+
+@app.post("/admin/places", response_model=schemas.PlaceOut)
+def admin_create_place(
+    place: schemas.PlaceCreate,
+    db: Session = Depends(get_db),
+    admin = Depends(get_current_admin)
+):
+    return crud.create_place(db, place)
+
+
+@app.put("/admin/places/{place_id}", response_model=schemas.PlaceOut)
+def admin_update_place(
+    place_id: int,
+    data: schemas.PlaceUpdate,
+    db: Session = Depends(get_db),
+    admin = Depends(get_current_admin)
+):
+    place = crud.update_place(db, place_id, data)
+    if not place:
+        raise HTTPException(status_code=404, detail="Place not found")
+    return place
+
+# -------- PUBLIC PLACES --------
+
+@app.get("/places", response_model=list[schemas.PlaceOut])
+def get_places(db: Session = Depends(get_db)):
+    return crud.get_all_places(db)
+
+
+@app.get("/places/{place_id}", response_model=schemas.PlaceOut)
+def get_place(place_id: int, db: Session = Depends(get_db)):
+    place = crud.get_place_by_id(db, place_id)
+    if not place or not place.is_active:
+        raise HTTPException(status_code=404, detail="Place not found")
+    return place

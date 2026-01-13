@@ -86,3 +86,37 @@ def authenticate_user(db: Session, email: str, password: str):
         return None
 
     return user
+
+
+# -------- PLACE CRUD --------
+
+def create_place(db: Session, place: schemas.PlaceCreate):
+    db_place = models.Place(**place.dict())
+    db.add(db_place)
+    db.commit()
+    db.refresh(db_place)
+    return db_place
+
+
+def get_all_places(db: Session, only_active: bool = True):
+    query = db.query(models.Place)
+    if only_active:
+        query = query.filter(models.Place.is_active == True)
+    return query.all()
+
+
+def get_place_by_id(db: Session, place_id: int):
+    return db.query(models.Place).filter(models.Place.id == place_id).first()
+
+
+def update_place(db: Session, place_id: int, data: schemas.PlaceUpdate):
+    place = get_place_by_id(db, place_id)
+    if not place:
+        return None
+
+    for key, value in data.dict(exclude_unset=True).items():
+        setattr(place, key, value)
+
+    db.commit()
+    db.refresh(place)
+    return place

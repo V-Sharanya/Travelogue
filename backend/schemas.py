@@ -39,3 +39,37 @@ class LoginResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+# -------- PLACE SCHEMAS --------
+
+class PlaceBase(BaseModel):
+    name: str
+    country: str
+    state: str | None = None
+    category: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+
+
+class PlaceCreate(PlaceBase):
+    pass
+
+
+class PlaceUpdate(BaseModel):
+    name: str | None = None
+    country: str | None = None
+    state: str | None = None
+    category: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+    is_active: bool | None = None
+
+
+class PlaceOut(PlaceBase):
+    id: int
+    popularity_score: int
+    is_active: bool
+
+    class Config:
+        from_attributes = True
