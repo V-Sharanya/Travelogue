@@ -1,0 +1,106 @@
+/* admin.css */
+
+.admin-layout {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  background: #f8fafc;
+}
+
+/* Sidebar */
+.admin-sidebar {
+  width: 260px;
+  background: linear-gradient(180deg, #111827, #1f2933);
+  color: #ffffff;
+  padding: 24px;
+}
+
+.admin-sidebar h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-link {
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: #e5e7eb;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.2s, color 0.2s;
+}
+
+.admin-link:hover {
+  background: rgba(99, 102, 241, 0.15);
+  color: #ffffff;
+}
+
+.admin-link.active {
+  background: #6366f1;
+  color: #ffffff;
+}
+.admin-main {
+  flex: 1;
+  padding: 24px 32px;
+  background: #f8fafc;
+}
+
+/* Page wrapper to control width */
+.admin-page {
+  max-width: 1100px;
+}
+
+/* Page card */
+.admin-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+}
+
+/* Table */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.admin-table th {
+  text-align: left;
+  font-size: 0.85rem;
+  color: #6b7280;
+  padding-bottom: 12px;
+}
+
+.admin-table td {
+  padding: 14px 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.admin-action {
+  color: #6366f1;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Primary button */
+.admin-button {
+  background: #6366f1;
+  color: #ffffff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-button:hover {
+  background: #4f46e5;
+}

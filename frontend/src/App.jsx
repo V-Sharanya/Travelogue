@@ -10,6 +10,9 @@ import RequireAdmin from "./auth/RequireAdmin";
 import AdminLayout from "./admin/AdminLayout";
 import PlacesList from "./admin/Places/PlacesList";
 import AddPlace from "./admin/Places/AddPlace";
+import AdminDashboard from "./admin/AdminDashboard";
+import EditPlace from "./admin/Places/EditPlace";
+
 
 /* ---------------- AUTH PAGES ---------------- */
 
@@ -75,44 +78,35 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* 🔑 ROLE-BASED LANDING */}
-      <Route
-        path="/"
-        element={
-          user.role === "admin"
-            ? <Navigate to="/admin/places" replace />
-            : <Navigate to="/dashboard" replace />
-        }
-      />
+  {/* ROOT */}
+  <Route
+    path="/"
+    element={
+      user.role === "admin"
+        ? <Navigate to="/admin" replace />
+        : <Navigate to="/dashboard" replace />
+    }
+  />
 
-      {/* USER DASHBOARD */}
-      <Route path="/dashboard" element={<UserDashboard />} />
+  {/* USER */}
+  <Route path="/dashboard" element={<UserDashboard />} />
 
-      {/* ADMIN DASHBOARD */}
-      <Route
-        path="/admin/places"
-        element={
-          <RequireAdmin user={user}>
-            <AdminLayout>
-              <PlacesList />
-            </AdminLayout>
-          </RequireAdmin>
-        }
-      />
+  {/* ADMIN (NESTED ROUTES) */}
+  <Route
+    path="/admin"
+    element={
+      <RequireAdmin user={user}>
+        <AdminLayout />
+      </RequireAdmin>
+    }
+  >
+    <Route index element={<AdminDashboard />} />
+    <Route path="places" element={<PlacesList />} />
+    <Route path="places/add" element={<AddPlace />} />
+    <Route path="places/edit/:id" element={<EditPlace />} />
+  </Route>
+</Routes>
 
-      <Route
-        path="/admin/places/add"
-        element={
-          <RequireAdmin user={user}>
-            <AdminLayout>
-              <AddPlace />
-            </AdminLayout>
-          </RequireAdmin>
-        }
-      />
-
-
-    </Routes>
   );
 }
 

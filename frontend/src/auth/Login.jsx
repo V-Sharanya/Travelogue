@@ -16,7 +16,7 @@ export default function Login({ onSwitch }) {
 
       // 🔑 ROLE-BASED REDIRECT (FIX)
       if (user.role === "admin") {
-        navigate("/admin/places", { replace: true });
+        navigate("/admin", { replace: true });
       } else {
         navigate("/dashboard", { replace: true });
       }
