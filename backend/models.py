@@ -25,3 +25,22 @@ class Place(Base):
     longitude = Column(DECIMAL(11, 8))
     popularity_score = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)
+
+
+from sqlalchemy import Text, ForeignKey
+from sqlalchemy.orm import relationship
+
+class Post(Base):
+    __tablename__ = "posts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    title = Column(String(200), nullable=False)
+    content = Column(Text, nullable=False)
+    location = Column(String(150))
+
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, onupdate=func.now())
+
+    user = relationship("User")

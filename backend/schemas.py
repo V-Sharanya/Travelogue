@@ -75,3 +75,30 @@ class PlaceOut(PlaceBase):
 
     class Config:
         from_attributes = True
+
+
+# -------- POST SCHEMAS --------
+
+class PostBase(BaseModel):
+    title: str
+    content: str
+    location: str | None = None
+
+
+class PostCreate(PostBase):
+    pass
+
+
+class PostUpdate(BaseModel):
+    title: str | None = None
+    content: str | None = None
+    location: str | None = None
+
+
+class PostOut(PostBase):
+    id: int
+    user_id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

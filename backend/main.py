@@ -170,3 +170,52 @@ def get_place(place_id: int, db: Session = Depends(get_db)):
     if not place or not place.is_active:
         raise HTTPException(status_code=404, detail="Place not found")
     return place
+
+
+# -------- USER POSTS --------
+
+@app.post("/posts", response_model=schemas.PostOut)
+def create_post(
+    post: schemas.PostCreate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return crud.create_post(db, current_user.id, post)
+
+
+@app.get("/posts", response_model=list[schemas.PostOut])
+def get_all_posts(db: Session = Depends(get_db)):
+    return crud.get_all_posts(db)
+
+
+@app.get("/posts/me", response_model=list[schemas.PostOut])
+def get_my_posts(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return crud.get_posts_by_user(db, current_user.id)
+
+
+@app.put("/posts/{post_id}", response_model=schemas.PostOut)
+def update_post(
+    post_id: int,
+    data: schemas.PostUpdate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    post = crud.update_post(db, post_id, current_user.id, data)
+    if not post:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    return post
+
+
+@app.delete("/posts/{post_id}")
+def delete_post(
+    post_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    post = crud.delete_post(db, post_id, current_user.id)
+    if not post:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    return {"message": "Post deleted successfully"}

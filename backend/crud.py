@@ -120,3 +120,53 @@ def update_place(db: Session, place_id: int, data: schemas.PlaceUpdate):
     db.commit()
     db.refresh(place)
     return place
+
+
+# -------- POST CRUD --------
+
+def create_post(db: Session, user_id: int, post: schemas.PostCreate):
+    db_post = models.Post(
+        user_id=user_id,
+        **post.dict()
+    )
+    db.add(db_post)
+    db.commit()
+    db.refresh(db_post)
+    return db_post
+
+
+def get_all_posts(db: Session):
+    return db.query(models.Post).order_by(models.Post.created_at.desc()).all()
+
+
+def get_post_by_id(db: Session, post_id: int):
+    return db.query(models.Post).filter(models.Post.id == post_id).first()
+
+
+def get_posts_by_user(db: Session, user_id: int):
+    return db.query(models.Post).filter(models.Post.user_id == user_id).all()
+
+
+def update_post(db: Session, post_id: int, user_id: int, data: schemas.PostUpdate):
+    post = get_post_by_id(db, post_id)
+
+    if not post or post.user_id != user_id:
+        return None
+
+    for key, value in data.dict(exclude_unset=True).items():
+        setattr(post, key, value)
+
+    db.commit()
+    db.refresh(post)
+    return post
+
+
+def delete_post(db: Session, post_id: int, user_id: int):
+    post = get_post_by_id(db, post_id)
+
+    if not post or post.user_id != user_id:
+        return None
+
+    db.delete(post)
+    db.commit()
+    return post
