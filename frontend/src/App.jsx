@@ -12,6 +12,8 @@ import PlacesList from "./admin/Places/PlacesList";
 import AddPlace from "./admin/Places/AddPlace";
 import AdminDashboard from "./admin/AdminDashboard";
 import EditPlace from "./admin/Places/EditPlace";
+import UserDashboard from "./user/UserDashboard";
+
 
 
 /* ---------------- AUTH PAGES ---------------- */
@@ -50,18 +52,7 @@ function Home() {
 }
 
 
-/* ---------------- ROUTES ---------------- */
-function UserDashboard() {
-  const { user, logout } = useAuth();
 
-  return (
-    <div style={{ padding: "2rem" }}>
-      <h2>User Dashboard</h2>
-      <p>Welcome, {user.name}</p>
-      <button onClick={logout}>Logout</button>
-    </div>
-  );
-}
 
 function AppRoutes() {
   const { user, loading } = useAuth();
