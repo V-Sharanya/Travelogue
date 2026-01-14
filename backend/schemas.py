@@ -79,14 +79,6 @@ class PlaceOut(PlaceBase):
 
 # -------- POST SCHEMAS --------
 
-class PostBase(BaseModel):
-    title: str
-    content: str
-    location: str | None = None
-
-
-class PostCreate(PostBase):
-    pass
 
 
 class PostUpdate(BaseModel):
@@ -95,10 +87,24 @@ class PostUpdate(BaseModel):
     location: str | None = None
 
 
-class PostOut(PostBase):
+# -------- POST IMAGE --------
+# -------- POST SCHEMAS --------
+
+class PostImageOut(BaseModel):
+    image_url: str
+
+    class Config:
+        from_attributes = True
+
+
+class PostOut(BaseModel):
     id: int
     user_id: int
+    title: str
+    content: str
+    location: str | None
     created_at: datetime
+    images: list[PostImageOut] = []
 
     class Config:
         from_attributes = True

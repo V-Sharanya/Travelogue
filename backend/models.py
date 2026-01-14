@@ -44,3 +44,15 @@ class Post(Base):
     updated_at = Column(DateTime, onupdate=func.now())
 
     user = relationship("User")
+
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
+
+class PostImage(Base):
+    __tablename__ = "post_images"
+
+    id = Column(Integer, primary_key=True)
+    post_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"))
+    image_url = Column(String(500), nullable=False)
+
+    post = relationship("Post", backref="images")

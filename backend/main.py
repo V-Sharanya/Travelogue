@@ -1,9 +1,14 @@
+import os
+os.makedirs("uploads", exist_ok=True)
+
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from jose import jwt
 from fastapi.middleware.cors import CORSMiddleware
 
+from fastapi import UploadFile, File, Form
+from typing import List
 
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
@@ -11,12 +16,15 @@ import models
 import schemas
 import crud
 from database import engine, get_db
+from fastapi.staticfiles import StaticFiles
+
+
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-app = FastAPI()
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 app.add_middleware(
     CORSMiddleware,
@@ -176,11 +184,39 @@ def get_place(place_id: int, db: Session = Depends(get_db)):
 
 @app.post("/posts", response_model=schemas.PostOut)
 def create_post(
-    post: schemas.PostCreate,
+    title: str = Form(...),
+    content: str = Form(...),
+    location: str | None = Form(None),
+    images: List[UploadFile] = File([]),
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    return crud.create_post(db, current_user.id, post)
+    post = models.Post(
+        user_id=current_user.id,
+        title=title,
+        content=content,
+        location=location,
+    )
+
+    db.add(post)
+    db.commit()
+    db.refresh(post)
+
+    # TEMP: store locally (later replace with Cloudinary)
+    for img in images:
+        file_path = f"uploads/{post.id}_{img.filename}"
+        with open(file_path, "wb") as f:
+            f.write(img.file.read())
+
+        db.add(models.PostImage(
+            post_id=post.id,
+            image_url=file_path
+        ))
+
+    db.commit()
+    db.refresh(post)
+
+    return post
 
 
 @app.get("/posts", response_model=list[schemas.PostOut])
@@ -194,19 +230,6 @@ def get_my_posts(
     current_user = Depends(get_current_user)
 ):
     return crud.get_posts_by_user(db, current_user.id)
-
-
-@app.put("/posts/{post_id}", response_model=schemas.PostOut)
-def update_post(
-    post_id: int,
-    data: schemas.PostUpdate,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
-):
-    post = crud.update_post(db, post_id, current_user.id, data)
-    if not post:
-        raise HTTPException(status_code=403, detail="Not authorized")
-    return post
 
 
 @app.delete("/posts/{post_id}")
