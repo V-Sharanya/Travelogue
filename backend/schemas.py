@@ -108,3 +108,12 @@ class PostOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class LikeResponse(BaseModel):
+    liked: bool
+    like_count: int
+
+
+class SaveResponse(BaseModel):
+    saved: bool

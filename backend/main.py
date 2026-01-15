@@ -242,3 +242,50 @@ def delete_post(
     if not post:
         raise HTTPException(status_code=403, detail="Not authorized")
     return {"message": "Post deleted successfully"}
+
+@app.post("/posts/{post_id}/like", response_model=schemas.LikeResponse)
+def like_post(
+    post_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    liked = crud.like_post(db, current_user.id, post_id)
+    count = crud.get_like_count(db, post_id)
+    return {"liked": liked, "like_count": count}
+
+
+@app.delete("/posts/{post_id}/like", response_model=schemas.LikeResponse)
+def unlike_post(
+    post_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    crud.unlike_post(db, current_user.id, post_id)
+    count = crud.get_like_count(db, post_id)
+    return {"liked": False, "like_count": count}
+
+@app.post("/posts/{post_id}/save", response_model=schemas.SaveResponse)
+def save_post(
+    post_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    saved = crud.save_post(db, current_user.id, post_id)
+    return {"saved": saved}
+
+
+@app.delete("/posts/{post_id}/save", response_model=schemas.SaveResponse)
+def unsave_post(
+    post_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    crud.unsave_post(db, current_user.id, post_id)
+    return {"saved": False}
+
+@app.get("/posts/saved", response_model=list[schemas.PostOut])
+def my_saved_posts(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return crud.get_saved_posts(db, current_user.id)

@@ -147,3 +147,63 @@ def delete_post(db: Session, post_id: int, user_id: int):
     db.delete(post)
     db.commit()
     return post
+
+def like_post(db: Session, user_id: int, post_id: int):
+    existing = db.query(models.PostLike).filter_by(
+        user_id=user_id, post_id=post_id
+    ).first()
+
+    if existing:
+        return False
+
+    db.add(models.PostLike(user_id=user_id, post_id=post_id))
+    db.commit()
+    return True
+
+def unlike_post(db: Session, user_id: int, post_id: int):
+    like = db.query(models.PostLike).filter_by(
+        user_id=user_id, post_id=post_id
+    ).first()
+
+    if not like:
+        return False
+
+    db.delete(like)
+    db.commit()
+    return True
+
+def get_like_count(db: Session, post_id: int):
+    return db.query(models.PostLike).filter_by(post_id=post_id).count()
+
+def save_post(db: Session, user_id: int, post_id: int):
+    existing = db.query(models.PostSave).filter_by(
+        user_id=user_id, post_id=post_id
+    ).first()
+
+    if existing:
+        return False
+
+    db.add(models.PostSave(user_id=user_id, post_id=post_id))
+    db.commit()
+    return True
+
+def unsave_post(db: Session, user_id: int, post_id: int):
+    save = db.query(models.PostSave).filter_by(
+        user_id=user_id, post_id=post_id
+    ).first()
+
+    if not save:
+        return False
+
+    db.delete(save)
+    db.commit()
+    return True
+
+def get_saved_posts(db: Session, user_id: int):
+    return (
+        db.query(models.Post)
+        .join(models.PostSave, models.Post.id == models.PostSave.post_id)
+        .filter(models.PostSave.user_id == user_id)
+        .order_by(models.PostSave.created_at.desc())
+        .all()
+    )
