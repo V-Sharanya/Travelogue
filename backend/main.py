@@ -217,12 +217,21 @@ def create_post(
     db.refresh(post)
 
     return post
-
-
 @app.get("/posts", response_model=list[schemas.PostOut])
-def get_all_posts(db: Session = Depends(get_db)):
-    return crud.get_all_posts(db)
+def get_feed(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    results = crud.get_feed_posts(db, current_user.id)
 
+    feed = []
+    for post, like_count, liked, saved in results:
+        post.like_count = like_count
+        post.liked = liked
+        post.saved = saved
+        feed.append(post)
+
+    return feed
 
 @app.get("/posts/me", response_model=list[schemas.PostOut])
 def get_my_posts(

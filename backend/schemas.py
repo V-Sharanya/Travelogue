@@ -106,9 +106,12 @@ class PostOut(BaseModel):
     created_at: datetime
     images: list[PostImageOut] = []
 
+    like_count: int
+    liked: bool
+    saved: bool
+
     class Config:
         from_attributes = True
-
 
 class LikeResponse(BaseModel):
     liked: bool

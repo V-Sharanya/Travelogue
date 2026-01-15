@@ -207,3 +207,35 @@ def get_saved_posts(db: Session, user_id: int):
         .order_by(models.PostSave.created_at.desc())
         .all()
     )
+
+from sqlalchemy import func, exists
+
+def get_feed_posts(db: Session, user_id: int):
+    like_count_subq = (
+        db.query(
+            models.PostLike.post_id,
+            func.count(models.PostLike.id).label("like_count")
+        )
+        .group_by(models.PostLike.post_id)
+        .subquery()
+    )
+
+    posts = (
+        db.query(
+            models.Post,
+            func.coalesce(like_count_subq.c.like_count, 0).label("like_count"),
+            exists().where(
+                (models.PostLike.post_id == models.Post.id) &
+                (models.PostLike.user_id == user_id)
+            ).label("liked"),
+            exists().where(
+                (models.PostSave.post_id == models.Post.id) &
+                (models.PostSave.user_id == user_id)
+            ).label("saved")
+        )
+        .outerjoin(like_count_subq, models.Post.id == like_count_subq.c.post_id)
+        .order_by(models.Post.created_at.desc())
+        .all()
+    )
+
+    return posts
