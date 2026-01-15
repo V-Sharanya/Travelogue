@@ -10,6 +10,18 @@ export default function PlacesList() {
     API.get("/places").then((res) => setPlaces(res.data));
   }, []);
 
+  // ✅ MUST be inside component
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this place?")) return;
+
+    try {
+      await API.delete(`/admin/places/${id}`);
+      setPlaces((prev) => prev.filter((p) => p.id !== id));
+    } catch {
+      alert("Failed to delete place");
+    }
+  };
+
   return (
     <div className="admin-card">
       {/* Header */}
@@ -45,13 +57,21 @@ export default function PlacesList() {
               <td>{p.name}</td>
               <td>{p.country}</td>
               <td>{p.category}</td>
-              <td>
+              <td style={{ display: "flex", gap: "12px" }}>
                 <Link
                   to={`/admin/places/edit/${p.id}`}
                   className="admin-action"
                 >
                   Edit
                 </Link>
+
+                <span
+                  className="admin-action"
+                  style={{ color: "#ef4444" }}
+                  onClick={() => handleDelete(p.id)}
+                >
+                  Delete
+                </span>
               </td>
             </tr>
           ))}

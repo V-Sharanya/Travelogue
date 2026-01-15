@@ -179,6 +179,20 @@ def get_place(place_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Place not found")
     return place
 
+@app.delete("/admin/places/{place_id}")
+def admin_delete_place(
+    place_id: int,
+    db: Session = Depends(get_db),
+    admin = Depends(get_current_admin)
+):
+    place = crud.get_place_by_id(db, place_id)
+    if not place:
+        raise HTTPException(status_code=404, detail="Place not found")
+
+    db.delete(place)
+    db.commit()
+    return {"message": "Place deleted successfully"}
+
 
 # -------- USER POSTS --------
 
@@ -217,6 +231,7 @@ def create_post(
     db.refresh(post)
 
     return post
+
 @app.get("/posts", response_model=list[schemas.PostOut])
 def get_feed(
     db: Session = Depends(get_db),

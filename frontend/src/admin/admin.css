@@ -15,6 +15,15 @@
   color: #ffffff;
   padding: 24px;
 }
+.admin-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-nav {
+  flex: 1;
+}
+
 
 .admin-sidebar h3 {
   font-size: 1.25rem;

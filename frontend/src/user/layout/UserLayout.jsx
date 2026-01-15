@@ -6,8 +6,11 @@ export default function UserLayout({ children }) {
     <div className="user-layout">
       <UserSidebar />
       <main className="user-main">
-        {children}
+        <div className="user-content">
+          {children}
+        </div>
       </main>
     </div>
   );
 }
+

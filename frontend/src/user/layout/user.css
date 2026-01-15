@@ -1,3 +1,6 @@
+body{
+  margin:0;
+}
 .user-layout {
   display: flex;
   min-height: 100vh;
@@ -38,7 +41,16 @@
   flex: 1;
   padding: 32px;
   overflow-y: auto;
+  display: flex;
+  justify-content: center;
 }
+
+/* Centered content column */
+.user-content {
+  width: 100%;
+  max-width: 900px;
+}
+
 
 .logout-btn {
   margin-top: 40px;
