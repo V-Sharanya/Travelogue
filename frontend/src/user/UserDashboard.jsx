@@ -2,6 +2,8 @@ import { Routes, Route } from "react-router-dom";
 import UserLayout from "./layout/UserLayout";
 import PostFeed from "./posts/PostFeed";
 import CreatePost from "./posts/CreatePost";
+import SavedPosts from "./posts/SavedPosts";
+
 
 export default function UserDashboard() {
   return (
@@ -11,6 +13,8 @@ export default function UserDashboard() {
         <Route index element={<PostFeed showOthersOnly />} />
 
         <Route path="create" element={<CreatePost />} />
+        <Route path="saved" element={<SavedPosts />} />
+
 
         {/* placeholders */}
         <Route path="recommendations" element={<div>Coming soon</div>} />

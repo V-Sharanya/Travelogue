@@ -12,6 +12,7 @@ export default function UserSidebar() {
         <NavLink to="/dashboard">Dashboard</NavLink>
         <NavLink to="/dashboard/create">Create Post</NavLink>
         <NavLink to="/dashboard/my-feed">My Feed</NavLink>
+        <NavLink to="/dashboard/saved">Saved</NavLink>
         <NavLink to="/dashboard/recommendations">Recommendations</NavLink>
         <NavLink to="/dashboard/settings">Settings</NavLink>
       </nav>

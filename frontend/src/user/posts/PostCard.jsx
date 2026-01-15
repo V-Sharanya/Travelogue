@@ -1,4 +1,41 @@
+import API from "../../api/api";
+import { useState } from "react";
+
 export default function PostCard({ post }) {
+  const [liked, setLiked] = useState(post.liked);
+  const [saved, setSaved] = useState(post.saved);
+  const [likeCount, setLikeCount] = useState(post.like_count);
+
+  const toggleLike = async () => {
+    try {
+      if (liked) {
+        const res = await API.delete(`/posts/${post.id}/like`);
+        setLiked(false);
+        setLikeCount(res.data.like_count);
+      } else {
+        const res = await API.post(`/posts/${post.id}/like`);
+        setLiked(true);
+        setLikeCount(res.data.like_count);
+      }
+    } catch {
+      alert("Failed to like post");
+    }
+  };
+
+  const toggleSave = async () => {
+    try {
+      if (saved) {
+        await API.delete(`/posts/${post.id}/save`);
+        setSaved(false);
+      } else {
+        await API.post(`/posts/${post.id}/save`);
+        setSaved(true);
+      }
+    } catch {
+      alert("Failed to save post");
+    }
+  };
+
   return (
     <div className="post-card">
       {/* HEADER */}
@@ -24,9 +61,15 @@ export default function PostCard({ post }) {
 
       {/* ACTIONS */}
       <div className="post-actions">
-        <span>❤️</span>
+        <span onClick={toggleLike} style={{ cursor: "pointer" }}>
+          {liked ? "❤️" : "🤍"} {likeCount}
+        </span>
+
         <span>💬</span>
-        <span>🔖</span>
+
+        <span onClick={toggleSave} style={{ cursor: "pointer" }}>
+          {saved ? "🔖" : "📑"}
+        </span>
       </div>
 
       {/* CONTENT */}
