@@ -39,7 +39,10 @@ export default function CreatePost({ onPostCreated }) {
       setLocation("");
       setImages([]);
 
-      onPostCreated();
+      if (onPostCreated) {
+  onPostCreated();
+}
+
     } catch {
       alert("Failed to create post");
     } finally {

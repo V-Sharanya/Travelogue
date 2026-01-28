@@ -17,9 +17,7 @@ export default function PostCard({ post }) {
         setLiked(true);
         setLikeCount(res.data.like_count);
       }
-    } catch {
-      alert("Failed to like post");
-    }
+    } catch { /* empty */ }
   };
 
   const toggleSave = async () => {
@@ -31,22 +29,24 @@ export default function PostCard({ post }) {
         await API.post(`/posts/${post.id}/save`);
         setSaved(true);
       }
-    } catch {
-      alert("Failed to save post");
-    }
+    } catch { /* empty */ }
   };
 
   return (
     <div className="post-card">
       {/* HEADER */}
       <div className="post-header">
-        <div>
-          <strong>User {post.user_id}</strong>
-          {post.location && (
-            <div className="post-location">📍 {post.location}</div>
-          )}
+        <div className="post-user">
+          <div className="avatar">👤</div>
+          <div>
+            <div className="username">Traveler</div>
+            {post.location && (
+              <div className="post-location">📍 {post.location}</div>
+            )}
+          </div>
         </div>
-        <span className="post-menu">⋮</span>
+
+        <span className="post-menu">⋯</span>
       </div>
 
       {/* IMAGE */}
@@ -61,20 +61,21 @@ export default function PostCard({ post }) {
 
       {/* ACTIONS */}
       <div className="post-actions">
-        <span onClick={toggleLike} style={{ cursor: "pointer" }}>
-          {liked ? "❤️" : "🤍"} {likeCount}
-        </span>
+        <div className="left-actions">
+          <span onClick={toggleLike}>
+            {liked ? "❤️" : "🤍"} {likeCount}
+          </span>
+          <span>💬</span>
+        </div>
 
-        <span>💬</span>
-
-        <span onClick={toggleSave} style={{ cursor: "pointer" }}>
+        <span onClick={toggleSave}>
           {saved ? "🔖" : "📑"}
         </span>
       </div>
 
       {/* CONTENT */}
-      <div className="post-body">
-        <strong>{post.title}</strong>
+      <div className="post-content">
+        <h4>{post.title}</h4>
         <p>{post.content}</p>
       </div>
 

@@ -1,12 +1,12 @@
 /* userNavbar.css */
 
 .user-navbar {
-  height: 64px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 28px;
-  background: #fffaf5;
+  background: white;
   border-bottom: 1px solid #eee;
 }
 

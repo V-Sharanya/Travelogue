@@ -80,7 +80,7 @@ function AppRoutes() {
   />
 
   {/* USER */}
-  <Route path="/dashboard" element={<UserDashboard />} />
+  <Route path="/dashboard/*" element={<UserDashboard />} />
 
   {/* ADMIN (NESTED ROUTES) */}
   <Route
