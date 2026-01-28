@@ -1,0 +1,59 @@
+/* userNavbar.css */
+
+.user-navbar {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  background: #fffaf5;
+  border-bottom: 1px solid #eee;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #14b8a6;
+  color: white;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+}
+
+.logo-text {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.navbar-search {
+  flex: 1;
+  max-width: 520px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  padding: 10px 14px;
+  border-radius: 999px;
+  margin: 0 40px;
+  border: 1px solid #eee;
+}
+
+.navbar-search input {
+  border: none;
+  outline: none;
+  width: 100%;
+  background: transparent;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
