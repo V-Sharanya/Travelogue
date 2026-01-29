@@ -28,7 +28,13 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # frontend origin
+    allow_origins=[
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+],
+  # frontend origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -195,7 +201,6 @@ def admin_delete_place(
 
 
 # -------- USER POSTS --------
-
 @app.post("/posts", response_model=schemas.PostOut)
 def create_post(
     title: str = Form(...),
@@ -216,7 +221,6 @@ def create_post(
     db.commit()
     db.refresh(post)
 
-    # TEMP: store locally (later replace with Cloudinary)
     for img in images:
         file_path = f"uploads/{post.id}_{img.filename}"
         with open(file_path, "wb") as f:
@@ -229,6 +233,11 @@ def create_post(
 
     db.commit()
     db.refresh(post)
+
+    # ✅ ADD THESE
+    post.like_count = 0
+    post.liked = False
+    post.saved = False
 
     return post
 
