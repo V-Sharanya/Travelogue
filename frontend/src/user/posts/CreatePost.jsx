@@ -51,48 +51,67 @@ export default function CreatePost({ onPostCreated }) {
   };
 
   return (
-  <div className="create-post-card">
-    <h2>Create a Post</h2>
+  <div className="create-post-wrapper">
+    <h2 className="create-title">Share Your Journey</h2>
 
-    <div className="form-group">
-      <input
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
+    {/* TITLE + LOCATION */}
+    <div className="row">
+      <div className="field">
+        <label>Title</label>
+        <input
+          placeholder="Give your post a catchy title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+      </div>
 
-      <input
-        placeholder="Location (optional)"
-        value={location}
-        onChange={(e) => setLocation(e.target.value)}
+      <div className="field">
+        <label>Location</label>
+        <input
+          placeholder="Where was this?"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+        />
+      </div>
+    </div>
+
+    {/* STORY */}
+    <div className="field">
+      <label>Your Story</label>
+      <textarea
+        placeholder="Share the highlights of your travel experience..."
+        rows={5}
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
       />
     </div>
 
-    <textarea
-      placeholder="Share your travel experience..."
-      rows={4}
-      value={content}
-      onChange={(e) => setContent(e.target.value)}
-    />
+    {/* PHOTOS */}
+    <div className="field">
+      <label>Photos</label>
 
-    <label className="file-input">
-      Add Images
-      <input
-        type="file"
-        multiple
-        accept="image/*"
-        onChange={handleImageChange}
-      />
-    </label>
+      <label className="photo-box">
+        <span>➕</span>
+        <p>Add</p>
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={handleImageChange}
+          hidden
+        />
+      </label>
 
-    <div className="image-preview">
-      {images.map((img, idx) => (
-        <img key={idx} src={URL.createObjectURL(img)} />
-      ))}
+      <div className="image-preview">
+        {images.map((img, idx) => (
+          <img key={idx} src={URL.createObjectURL(img)} />
+        ))}
+      </div>
     </div>
 
-    <button onClick={handleSubmit} disabled={loading}>
-      {loading ? "Posting..." : "Post"}
+    {/* BUTTON */}
+    <button className="share-btn" onClick={handleSubmit} disabled={loading}>
+      {loading ? "Sharing..." : "Share Post"}
     </button>
   </div>
 );
