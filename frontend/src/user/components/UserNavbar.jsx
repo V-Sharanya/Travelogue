@@ -1,8 +1,10 @@
 // src/user/components/UserNavbar.jsx
 import { Search, Bell, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import "./userNavbar.css";
 
 export default function UserNavbar() {
+  const navigate = useNavigate();
   return (
     <header className="user-navbar">
       {/* Left: Logo */}
@@ -22,8 +24,11 @@ export default function UserNavbar() {
 
       {/* Right: Icons */}
       <div className="navbar-right">
-        <Bell size={20} />
-        <User size={20} />
+        <User
+          size={20}
+          style={{ cursor: "pointer" }}
+          onClick={() => navigate("/profile")}
+        />
       </div>
     </header>
   );

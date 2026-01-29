@@ -322,3 +322,35 @@
 .share-btn:disabled {
   opacity: 0.6;
 }
+
+/* ===== SAVED POSTS PAGE ===== */
+
+.saved-posts-page {
+  padding: 20px 0;
+}
+
+.page-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.empty-text {
+  color: #6b7280;
+  font-size: 15px;
+}
+
+.profile-page {
+  padding: 20px 0;
+}
+
+.page-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+.empty-text {
+  color: #6b7280;
+  font-size: 15px;
+}

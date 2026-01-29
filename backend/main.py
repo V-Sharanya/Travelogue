@@ -321,4 +321,18 @@ def my_saved_posts(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    return crud.get_saved_posts(db, current_user.id)
+    posts = crud.get_saved_posts(db, current_user.id)
+
+    feed = []
+    for post in posts:
+        post.like_count = crud.get_like_count(db, post.id)
+        post.liked = (
+            db.query(models.PostLike)
+            .filter_by(user_id=current_user.id, post_id=post.id)
+            .first()
+            is not None
+        )
+        post.saved = True   # because this is saved list
+        feed.append(post)
+
+    return feed

@@ -13,6 +13,7 @@ import AddPlace from "./admin/Places/AddPlace";
 import AdminDashboard from "./admin/AdminDashboard";
 import EditPlace from "./admin/Places/EditPlace";
 import UserDashboard from "./user/UserDashboard";
+import UserProfile from "./user/posts/UserProfile";
 
 
 
@@ -81,6 +82,7 @@ function AppRoutes() {
 
   {/* USER */}
   <Route path="/dashboard/*" element={<UserDashboard />} />
+  <Route path="/profile" element={<UserProfile />} />
 
   {/* ADMIN (NESTED ROUTES) */}
   <Route

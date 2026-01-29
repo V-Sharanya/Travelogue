@@ -1,29 +1,30 @@
 import { useEffect, useState } from "react";
 import API from "../../api/api";
-import PostCard from "./PostCard";
+import PostCard from "../posts/PostCard";
+import "./post.css";
 
-export default function SavedPosts() {
+export default function UserProfile() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    const fetchSaved = async () => {
+    const fetchMyPosts = async () => {
       try {
-        const res = await API.get("/posts/saved");
+        const res = await API.get("/posts/me");
         setPosts(res.data);
       } catch {
-        alert("Failed to load saved posts");
+        alert("Failed to load your posts");
       }
     };
 
-    fetchSaved();
+    fetchMyPosts();
   }, []);
 
   return (
-    <div className="saved-posts-page">
-      <h2 className="page-title">Saved Posts</h2>
+    <div className="profile-page">
+      <h2 className="page-title">My Posts</h2>
 
       {posts.length === 0 ? (
-        <p className="empty-text">No saved posts yet.</p>
+        <p className="empty-text">You haven’t posted anything yet.</p>
       ) : (
         <div className="feed-grid">
           {posts.map((post) => (
