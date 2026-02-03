@@ -262,8 +262,26 @@ def get_my_posts(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    return crud.get_posts_by_user(db, current_user.id)
+    posts = crud.get_posts_by_user(db, current_user.id)
 
+    feed = []
+    for post in posts:
+        post.like_count = crud.get_like_count(db, post.id)
+        post.liked = (
+            db.query(models.PostLike)
+            .filter_by(user_id=current_user.id, post_id=post.id)
+            .first()
+            is not None
+        )
+        post.saved = (
+            db.query(models.PostSave)
+            .filter_by(user_id=current_user.id, post_id=post.id)
+            .first()
+            is not None
+        )
+        feed.append(post)
+
+    return feed
 
 @app.delete("/posts/{post_id}")
 def delete_post(
