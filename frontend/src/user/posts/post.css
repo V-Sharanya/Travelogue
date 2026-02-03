@@ -354,3 +354,35 @@
   color: #6b7280;
   font-size: 15px;
 }
+.post-menu {
+  position: relative;
+  cursor: pointer;
+}
+
+.menu-trigger {
+  font-size: 20px;
+}
+
+.menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 24px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 10;
+  min-width: 120px;
+}
+
+.menu-item {
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+.menu-item:hover {
+  background: #f5f5f5;
+}
+
+.menu-item.danger {
+  color: #e53935;
+}

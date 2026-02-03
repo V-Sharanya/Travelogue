@@ -5,6 +5,8 @@ export default function PostCard({ post }) {
   const [liked, setLiked] = useState(post.liked);
   const [saved, setSaved] = useState(post.saved);
   const [likeCount, setLikeCount] = useState(post.like_count);
+  const [showMenu, setShowMenu] = useState(false);
+
 
   const toggleLike = async () => {
     try {
@@ -31,6 +33,17 @@ export default function PostCard({ post }) {
       }
     } catch { /* empty */ }
   };
+  const handleDelete = async () => {
+  if (!window.confirm("Delete this post?")) return;
+
+  try {
+    await API.delete(`/posts/${post.id}`);
+    window.location.reload(); // simple & safe for now
+  } catch (err) {
+    console.error("Failed to delete post", err);
+  }
+};
+
 
   return (
     <div className="post-card">
@@ -46,7 +59,26 @@ export default function PostCard({ post }) {
           </div>
         </div>
 
-        <span className="post-menu">⋯</span>
+        <div className="post-menu">
+  <span
+    className="menu-trigger"
+    onClick={() => setShowMenu(!showMenu)}
+  >
+    ⋯
+  </span>
+
+  {showMenu && (
+    <div className="menu-dropdown">
+      <div className="menu-item" onClick={() => alert("Edit coming soon")}>
+        ✏️ Edit
+      </div>
+      <div className="menu-item danger" onClick={handleDelete}>
+        🗑 Delete
+      </div>
+    </div>
+  )}
+</div>
+
       </div>
 
       {/* IMAGE */}

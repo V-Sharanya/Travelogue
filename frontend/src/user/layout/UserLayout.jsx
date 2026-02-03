@@ -1,6 +1,7 @@
 import UserSidebar from "./UserSidebar";
 import UserNavbar from "../components/UserNavbar";
 import "./user.css";
+import { Outlet } from "react-router-dom";
 
 export default function UserLayout({ children }) {
   return (
@@ -12,7 +13,8 @@ export default function UserLayout({ children }) {
 
         <main className="user-main">
           <div className="user-content">
-            {children}
+            {children} 
+            <Outlet />
           </div>
         </main>
       </div>
