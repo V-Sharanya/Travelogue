@@ -27,7 +27,7 @@ export default function UserNavbar() {
         <User
           size={20}
           style={{ cursor: "pointer" }}
-          onClick={() => navigate("/profile")}
+          onClick={() => navigate("/dashboard/profile")}
         />
       </div>
     </header>

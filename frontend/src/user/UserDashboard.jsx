@@ -3,6 +3,7 @@ import UserLayout from "./layout/UserLayout";
 import PostFeed from "./posts/PostFeed";
 import CreatePost from "./posts/CreatePost";
 import SavedPosts from "./posts/SavedPosts";
+import UserProfile from "./posts/UserProfile";
 
 
 export default function UserDashboard() {
@@ -14,6 +15,7 @@ export default function UserDashboard() {
 
         <Route path="create" element={<CreatePost />} />
         <Route path="saved" element={<SavedPosts />} />
+        <Route path="profile" element={<UserProfile />} />
 
 
         {/* placeholders */}
