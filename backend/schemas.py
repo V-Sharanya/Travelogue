@@ -21,12 +21,12 @@ class UserOut(BaseModel):
     id: int
     name: str
     email: EmailStr
-    role: str            # 🔑 ADD THIS
+    role: str
     created_at: datetime
+    settings: UserSettingsResponse | None = None
 
     class Config:
         from_attributes = True
-
 
 
 class LoginRequest(BaseModel):
@@ -120,3 +120,27 @@ class LikeResponse(BaseModel):
 
 class SaveResponse(BaseModel):
     saved: bool
+
+
+class UserSettingsBase(BaseModel):
+    public_profile: bool = True
+    show_activity_status: bool = True
+    show_saved_posts: bool = False
+    theme: str = "light"
+    reduce_motion: bool = False
+    compact_mode: bool = False
+
+
+class UserSettingsUpdate(BaseModel):
+    public_profile: bool | None = None
+    show_activity_status: bool | None = None
+    show_saved_posts: bool | None = None
+    theme: str | None = None
+    reduce_motion: bool | None = None
+    compact_mode: bool | None = None
+
+
+class UserSettingsResponse(UserSettingsBase):
+    class Config:
+        from_attributes = True
+

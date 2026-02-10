@@ -1,6 +1,8 @@
 from sqlalchemy import DECIMAL, Boolean, Column, Integer, String, DateTime
 from sqlalchemy.sql import func
 from database import Base
+from sqlalchemy.orm import relationship
+
 
 class User(Base):
     __tablename__ = "users"
@@ -11,6 +13,15 @@ class User(Base):
     password_hash = Column(String(255))
     role = Column(String(20), default="user")
     created_at = Column(DateTime, server_default=func.now())
+
+    # ✅ ADD THIS BLOCK
+    settings = relationship(
+        "UserSettings",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan"
+    )
+
 
 
 class Place(Base):
@@ -80,3 +91,23 @@ class PostSave(Base):
 
     user = relationship("User")
     post = relationship("Post")
+
+
+
+class UserSettings(Base):
+    __tablename__ = "user_settings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
+
+    # Privacy
+    public_profile = Column(Boolean, default=True)
+    show_activity_status = Column(Boolean, default=True)
+    show_saved_posts = Column(Boolean, default=False)
+
+    # Appearance
+    theme = Column(String(10), default="light")  # light | dark | system
+    reduce_motion = Column(Boolean, default=False)
+    compact_mode = Column(Boolean, default=False)
+
+    user = relationship("User", back_populates="settings")

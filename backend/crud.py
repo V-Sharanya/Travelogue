@@ -239,3 +239,24 @@ def get_feed_posts(db: Session, user_id: int):
     )
 
     return posts
+
+
+def create_default_settings(db, user_id: int):
+    settings = models.UserSettings(user_id=user_id)
+    db.add(settings)
+    db.commit()
+    db.refresh(settings)
+    return settings
+
+def get_user_settings(db, user_id: int):
+    return db.query(models.UserSettings).filter(models.UserSettings.user_id == user_id).first()
+    
+def update_user_settings(db, user_id: int, data):
+    settings = get_user_settings(db, user_id)
+
+    for key, value in data.dict(exclude_unset=True).items():
+        setattr(settings, key, value)
+
+    db.commit()
+    db.refresh(settings)
+    return settings

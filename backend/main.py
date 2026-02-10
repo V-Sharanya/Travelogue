@@ -354,3 +354,51 @@ def my_saved_posts(
         feed.append(post)
 
     return feed
+
+@app.get("/settings", response_model=schemas.UserSettingsResponse)
+def read_settings(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    return crud.get_user_settings(db, current_user.id)
+
+@app.put("/settings", response_model=schemas.UserSettingsResponse)
+def update_settings(
+    payload: schemas.UserSettingsUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    return crud.update_user_settings(db, current_user.id, payload)
+
+@app.put("/users/email")
+def update_email(
+    email: str,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    current_user.email = email
+    db.commit()
+    return {"message": "Email updated"}
+
+@app.put("/users/password")
+def change_password(
+    current_password: str,
+    new_password: str,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    if not crud.verify_password(current_password, current_user.password):
+        raise HTTPException(status_code=400, detail="Incorrect password")
+
+    current_user.password = crud.hash_password(new_password)
+    db.commit()
+    return {"message": "Password updated"}
+
+@app.delete("/users")
+def delete_account(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    db.delete(current_user)
+    db.commit()
+    return {"message": "Account deleted"}
