@@ -4,6 +4,8 @@ import PostFeed from "./posts/PostFeed";
 import CreatePost from "./posts/CreatePost";
 import SavedPosts from "./posts/SavedPosts";
 import UserProfile from "./posts/UserProfile";
+import SettingsPage from "./settings/SettingsPage";
+
 
 
 export default function UserDashboard() {
@@ -20,7 +22,7 @@ export default function UserDashboard() {
 
         {/* placeholders */}
         <Route path="recommendations" element={<div>Coming soon</div>} />
-        <Route path="settings" element={<div>Settings</div>} />
+        <Route path="settings" element={<SettingsPage />} />
       </Routes>
     </UserLayout>
   );
