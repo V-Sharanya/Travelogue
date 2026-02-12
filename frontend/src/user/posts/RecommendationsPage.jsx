@@ -43,7 +43,15 @@ export default function RecommendationsPage() {
 
       <div className="feed-grid">
         {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
+          <div key={post.id} className="recommendation-item">
+            <PostCard post={post} />
+            {post.recommendation_reason && (
+              <div className="recommendation-meta">
+                <strong>Why this is recommended</strong>
+                <p>{post.recommendation_reason}</p>
+              </div>
+            )}
+          </div>
         ))}
       </div>
     </>

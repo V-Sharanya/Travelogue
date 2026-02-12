@@ -100,6 +100,10 @@
   gap: 28px;
 }
 
+.recommendation-item {
+  position: relative;
+}
+
 /* =========================
    POST CARD
 ========================= */
@@ -340,6 +344,40 @@
   font-size: 15px;
 }
 
+.recommendation-meta {
+  position: absolute;
+  inset: auto 12px 12px 12px;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.18);
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #374151;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+  border: 1px solid #e5e7eb;
+}
+
+.recommendation-meta strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.recommendation-meta p {
+  margin: 0;
+}
+
+.recommendation-item:hover .recommendation-meta {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .profile-page {
   padding: 20px 0;
 }
@@ -385,4 +423,103 @@
 
 .menu-item.danger {
   color: #e53935;
+}
+
+/* ===== TRIP PLANNER ===== */
+
+.trip-planner-page {
+  padding: 20px 0;
+}
+
+.trip-form {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+}
+
+.trip-form-row {
+  display: grid;
+  grid-template-columns: 2fr 0.8fr 1.2fr;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.trip-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #374151;
+}
+
+.trip-field input,
+.trip-field select {
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+.trip-submit {
+  margin-top: 4px;
+  background: #16a34a;
+  color: white;
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.trip-submit:disabled {
+  opacity: 0.7;
+}
+
+.trip-plan h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.trip-days-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.trip-day-card {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  padding: 14px 16px;
+}
+
+.trip-day-card h4 {
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.trip-day-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.trip-day-card li + li {
+  margin-top: 8px;
+}
+
+.trip-day-card li strong {
+  display: block;
+  font-size: 14px;
+}
+
+.trip-day-card li p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: #4b5563;
 }

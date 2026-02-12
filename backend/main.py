@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from jose import jwt
 from fastapi.middleware.cors import CORSMiddleware
 
-from fastapi import UploadFile, File, Form
+from fastapi import UploadFile, File, Form, Body
 from typing import List
 
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -341,6 +341,7 @@ def get_recommendations(
     saved_posts = crud.get_saved_posts(db, current_user.id)
     liked_posts = crud.get_liked_posts(db, current_user.id)
     results = crud.get_feed_posts(db, current_user.id)
+
     # Exclude own posts from candidates
     candidate_tuples = [
         (post, like_count, liked, saved)
@@ -349,26 +350,50 @@ def get_recommendations(
     ]
     if not candidate_tuples:
         return []
+
     profile_counter, preferred_authors = recommendations.build_user_profile(
         saved_posts, liked_posts
     )
-    candidates = [p for p, _, _, _ in candidate_tuples]
-    if profile_counter or preferred_authors:
-        ranked = recommendations.rank_candidates(
-            candidates, profile_counter, preferred_authors
-        )
-    else:
-        # No saved/liked yet: fall back to popularity (like_count)
-        ranked = [
-            p for p, _, _, _ in sorted(
-                candidate_tuples, key=lambda x: x[1], reverse=True
-            )
-        ]
+
+    # Map post.id -> (like_count, liked, saved) for decorating the response payload
     post_to_meta = {
         p.id: (lc, liked, saved)
         for p, lc, liked, saved in candidate_tuples
     }
-    feed = []
+
+    # If we have behavioral history, use the AI-powered recommender + explanations.
+    if profile_counter or preferred_authors:
+        rec_items = recommendations.recommend_posts_ai(
+            candidates=[p for p, _, _, _ in candidate_tuples],
+            saved_posts=saved_posts,
+            liked_posts=liked_posts,
+            top_k=30,
+        )
+
+        feed: list[models.Post] = []
+        for item in rec_items:
+            post = item["post"]
+            reason = item.get("reason")
+            lc, liked, saved = post_to_meta.get(
+                post.id, (getattr(post, "like_count", 0), False, False)
+            )
+            post.like_count = lc
+            post.liked = liked
+            post.saved = saved
+            post.author_name = post.user.name if post.user else None
+            post.author_username = getattr(post.user, "username", None) if post.user else None
+            # Attach explanation for frontend
+            post.recommendation_reason = reason
+            feed.append(post)
+        return feed
+
+    # No saved/liked yet: fall back to popularity (like_count) without explanations
+    ranked = [
+        p for p, _, _, _ in sorted(
+            candidate_tuples, key=lambda x: x[1], reverse=True
+        )
+    ]
+    feed: list[models.Post] = []
     for post in ranked:
         lc, liked, saved = post_to_meta.get(
             post.id, (getattr(post, "like_count", 0), False, False)
@@ -483,6 +508,106 @@ def my_saved_posts(
         feed.append(post)
 
     return feed
+
+
+# -------- TRIP PLANNER --------
+
+
+@app.post("/trip-plan", response_model=schemas.TripPlanResponse)
+def create_trip_plan(
+    payload: schemas.TripPlanRequest = Body(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """
+    Small 'TripAdvisor' style helper.
+
+    Builds a simple multi-day itinerary for a destination by:
+    - Using the user's recommendation profile (saved + liked posts).
+    - Focusing on posts that match the requested destination in their `location` or text.
+    - Distributing the best matches across the requested days.
+    """
+    destination = payload.destination.strip()
+    days = max(1, min(payload.days, 7))
+
+    # Get recommendation context
+    saved_posts = crud.get_saved_posts(db, current_user.id)
+    liked_posts = crud.get_liked_posts(db, current_user.id)
+    results = crud.get_feed_posts(db, current_user.id)
+
+    # Build candidates restricted to the destination and excluding own posts
+    dest_lower = destination.lower()
+    candidate_posts: list[models.Post] = []
+    for post, like_count, liked, saved in results:
+        if post.user_id == current_user.id:
+            continue
+        text = " ".join(
+            [
+                getattr(post, "title", "") or "",
+                getattr(post, "content", "") or "",
+                getattr(post, "location", "") or "",
+            ]
+        ).lower()
+        if dest_lower not in text:
+            continue
+        candidate_posts.append(post)
+
+    # If nothing matches the destination, fall back to normal recommendations.
+    if not candidate_posts:
+        rec_items = recommendations.recommend_posts_ai(
+            candidates=[p for p, _, _, _ in results if p.user_id != current_user.id],
+            saved_posts=saved_posts,
+            liked_posts=liked_posts,
+            top_k=days * 3,
+        )
+    else:
+        rec_items = recommendations.recommend_posts_ai(
+            candidates=candidate_posts,
+            saved_posts=saved_posts,
+            liked_posts=liked_posts,
+            top_k=days * 3,
+        )
+
+    # Distribute activities across days (2–3 per day depending on how many we have)
+    activities_per_day = max(1, min(3, (len(rec_items) // days) or 1))
+
+    days_plan: list[schemas.TripDay] = []
+    idx = 0
+    for day_num in range(1, days + 1):
+        day_activities: list[schemas.TripActivity] = []
+        for _ in range(activities_per_day):
+            if idx >= len(rec_items):
+                break
+            item = rec_items[idx]
+            post = item["post"]
+            reason = item.get("reason") or ""
+            day_activities.append(
+                schemas.TripActivity(
+                    title=post.title,
+                    description=reason or (post.content[:160] + "..." if post.content else ""),
+                    source_post_id=post.id,
+                )
+            )
+            idx += 1
+
+        if not day_activities:
+            break
+
+        summary = f"Day {day_num} around {destination} with {len(day_activities)} key stops."
+        days_plan.append(
+            schemas.TripDay(
+                day=day_num,
+                summary=summary,
+                activities=day_activities,
+            )
+        )
+
+    return schemas.TripPlanResponse(
+        destination=destination,
+        days=days,
+        style=payload.style,
+        days_plan=days_plan,
+    )
 
 @app.get("/settings", response_model=schemas.UserSettingsResponse)
 def read_settings(

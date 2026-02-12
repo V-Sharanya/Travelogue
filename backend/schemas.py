@@ -128,6 +128,7 @@ class PostOut(BaseModel):
     like_count: int
     liked: bool
     saved: bool
+    recommendation_reason: str | None = None
 
     class Config:
         from_attributes = True
@@ -162,4 +163,32 @@ class UserSettingsUpdate(BaseModel):
 class UserSettingsResponse(UserSettingsBase):
     class Config:
         from_attributes = True
+
+
+# -------- TRIP PLANNER --------
+
+
+class TripPlanRequest(BaseModel):
+    destination: str
+    days: int = 3
+    style: str | None = None  # e.g. "relaxed", "adventure", "cultural"
+
+
+class TripActivity(BaseModel):
+    title: str
+    description: str
+    source_post_id: int | None = None
+
+
+class TripDay(BaseModel):
+    day: int
+    summary: str
+    activities: list[TripActivity]
+
+
+class TripPlanResponse(BaseModel):
+    destination: str
+    days: int
+    style: str | None
+    days_plan: list[TripDay]
 

@@ -31,6 +31,11 @@ export default function UserSidebar() {
           <span>Recommendation</span>
         </NavLink>
 
+        <NavLink to="/dashboard/trip-planner" className="sidebar-link">
+          <Compass size={20} />
+          <span>Trip Advisor</span>
+        </NavLink>
+
         <NavLink to="/dashboard/settings" className="sidebar-link">
           <Settings size={20} />
           <span>Settings</span>
