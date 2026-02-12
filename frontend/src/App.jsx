@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
 import { useAuth } from "./auth/useAuth";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import API from "./api/api";
 
 import Login from "./auth/Login";
 import Signup from "./auth/Signup";
@@ -55,8 +56,26 @@ function Home() {
 
 
 
+function getEffectiveTheme(theme) {
+  if (theme === "system") {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  return theme || "light";
+}
+
+function applyThemeToDocument(theme) {
+  document.documentElement.setAttribute("data-theme", getEffectiveTheme(theme));
+}
+
 function AppRoutes() {
   const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!user) return;
+    API.get("/settings")
+      .then((res) => applyThemeToDocument(res.data?.theme))
+      .catch(() => {});
+  }, [user]);
 
   // ⏳ WAIT until auth is resolved
   if (loading) {

@@ -1,36 +1,47 @@
+import API from "../../api/api";
 import ToggleSwitch from "./ToggleSwitch";
 
-export default function PrivacySettings() {
+export default function PrivacySettings({ settings, setSettings }) {
+
+  const updateSetting = async (key, value) => {
+    try {
+      const res = await API.put("/settings", { [key]: value });
+      setSettings(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <div className="settings-card">
       <h2>Privacy Settings</h2>
 
       <SettingRow
         title="Public Profile"
-        desc="Allow anyone to view your profile"
+        value={settings.public_profile}
+        onChange={(val) => updateSetting("public_profile", val)}
       />
 
       <SettingRow
         title="Show Activity Status"
-        desc="Let others see when you're active"
+        value={settings.show_activity_status}
+        onChange={(val) => updateSetting("show_activity_status", val)}
       />
 
       <SettingRow
         title="Show Saved Posts"
-        desc="Allow others to see your saved posts"
+        value={settings.show_saved_posts}
+        onChange={(val) => updateSetting("show_saved_posts", val)}
       />
     </div>
   );
 }
 
-function SettingRow({ title, desc }) {
+function SettingRow({ title, value, onChange }) {
   return (
     <div className="settings-row">
-      <div>
-        <p><strong>{title}</strong></p>
-        <p className="settings-subtext">{desc}</p>
-      </div>
-      <ToggleSwitch />
+      <p>{title}</p>
+      <ToggleSwitch enabled={value} onChange={onChange} />
     </div>
   );
 }

@@ -44,9 +44,36 @@ SECRET_KEY = "change-this-later"   # later move to .env
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
+security = HTTPBearer(auto_error=False)
 
-security = HTTPBearer()
+from jose import JWTError
 
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(get_db)
+):
+    if credentials is None:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        token = credentials.credentials
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        user = crud.get_user_by_id(db, int(user_id))
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+        return user
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
 
 
 @app.post("/users", response_model=schemas.UserOut)
@@ -67,6 +94,45 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+@app.put("/users/email")
+def update_email(
+    payload: schemas.EmailUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    from sqlalchemy.exc import IntegrityError
+    existing = db.query(models.User).filter(models.User.email == payload.email).first()
+    if existing and existing.id != current_user.id:
+        raise HTTPException(status_code=409, detail="Email already registered")
+    current_user.email = payload.email
+    db.commit()
+    db.refresh(current_user)
+    return {"message": "Email updated"}
+
+
+@app.put("/users/password")
+def change_password(
+    payload: schemas.PasswordChangeRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    if not crud.verify_password(payload.current_password, current_user.password_hash):
+        raise HTTPException(status_code=400, detail="Incorrect password")
+    current_user.password_hash = crud.hash_password(payload.new_password)
+    db.commit()
+    return {"message": "Password updated"}
+
+
+@app.delete("/users")
+def delete_account(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    db.delete(current_user)
+    db.commit()
+    return {"message": "Account deleted"}
 
 
 @app.put("/users/{user_id}", response_model=schemas.UserOut)
@@ -107,35 +173,6 @@ def login(
         "token_type": "bearer"
     }
 
-
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-from jose import JWTError
-
-def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db)
-):
-    try:
-        token = credentials.credentials
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("sub")
-
-        if user_id is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
-
-        user = crud.get_user_by_id(db, int(user_id))
-        if not user:
-            raise HTTPException(status_code=401, detail="User not found")
-
-        return user
-
-    except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
 
 @app.get("/auth/me", response_model=schemas.UserOut)
 def read_current_user(current_user = Depends(get_current_user)):
@@ -360,7 +397,13 @@ def read_settings(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    return crud.get_user_settings(db, current_user.id)
+    settings = crud.get_user_settings(db, current_user.id)
+
+    if not settings:
+        settings = crud.create_default_settings(db, current_user.id)
+
+    return settings
+
 
 @app.put("/settings", response_model=schemas.UserSettingsResponse)
 def update_settings(
@@ -370,35 +413,3 @@ def update_settings(
 ):
     return crud.update_user_settings(db, current_user.id, payload)
 
-@app.put("/users/email")
-def update_email(
-    email: str,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
-):
-    current_user.email = email
-    db.commit()
-    return {"message": "Email updated"}
-
-@app.put("/users/password")
-def change_password(
-    current_password: str,
-    new_password: str,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
-):
-    if not crud.verify_password(current_password, current_user.password):
-        raise HTTPException(status_code=400, detail="Incorrect password")
-
-    current_user.password = crud.hash_password(new_password)
-    db.commit()
-    return {"message": "Password updated"}
-
-@app.delete("/users")
-def delete_account(
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
-):
-    db.delete(current_user)
-    db.commit()
-    return {"message": "Account deleted"}

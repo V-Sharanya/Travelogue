@@ -29,6 +29,15 @@ class UserOut(BaseModel):
         from_attributes = True
 
 
+class EmailUpdateRequest(BaseModel):
+    email: EmailStr
+
+
+class PasswordChangeRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str

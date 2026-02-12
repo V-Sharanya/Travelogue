@@ -1,0 +1,38 @@
+/* Global theme: applied when document has data-theme="dark" */
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+[data-theme="dark"] body {
+  background: #1a1a1a;
+  color: #e5e5e5;
+}
+
+[data-theme="dark"] .user-layout {
+  background: #1a1a1a;
+}
+
+[data-theme="dark"] .user-sidebar {
+  background: #252525;
+  color: #e5e5e5;
+  border-right-color: #333;
+}
+
+[data-theme="dark"] .sidebar-link {
+  color: #d1d5db;
+}
+
+[data-theme="dark"] .sidebar-link:hover {
+  background: #333;
+  color: #fff;
+}
+
+[data-theme="dark"] .sidebar-link.active {
+  background: #1aa597;
+  color: white;
+}
+
+[data-theme="dark"] .user-main,
+[data-theme="dark"] .user-content {
+  background: #1a1a1a;
+}

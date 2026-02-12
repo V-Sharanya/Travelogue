@@ -1,16 +1,12 @@
-import { useState } from "react";
-
-export default function ToggleSwitch() {
-  const [on, setOn] = useState(true);
-
+export default function ToggleSwitch({ enabled, onChange }) {
   return (
     <div
-      onClick={() => setOn(!on)}
+      onClick={() => onChange(!enabled)}
       style={{
         width: "44px",
         height: "24px",
         borderRadius: "12px",
-        background: on ? "#1aa79c" : "#ccc",
+        background: enabled ? "#1aa79c" : "#ccc",
         cursor: "pointer",
         position: "relative",
         transition: "0.2s"
@@ -24,7 +20,7 @@ export default function ToggleSwitch() {
           borderRadius: "50%",
           position: "absolute",
           top: "2px",
-          left: on ? "22px" : "2px",
+          left: enabled ? "22px" : "2px",
           transition: "0.2s"
         }}
       />

@@ -19,6 +19,48 @@
   margin-bottom: 24px;
 }
 
+[data-theme="dark"] .settings-card {
+  background: #252525;
+  border-color: #333;
+  color: #e5e5e5;
+}
+
+[data-theme="dark"] .settings-page {
+  color: #e5e5e5;
+}
+
+[data-theme="dark"] .settings-input {
+  background: #333;
+  border-color: #444;
+  color: #e5e5e5;
+}
+
+[data-theme="dark"] .settings-subtext {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .theme-btn {
+  background: #333;
+  border-color: #444;
+  color: #e5e5e5;
+}
+
+[data-theme="dark"] .theme-btn.active {
+  border-color: #1aa79c;
+  background: #1a3a37;
+  color: #5eead4;
+}
+
+[data-theme="dark"] .btn-outline {
+  background: #333;
+  border-color: #555;
+  color: #e5e5e5;
+}
+
+[data-theme="dark"] .danger-zone {
+  border-top-color: #444;
+}
+
 .settings-card h2 {
   font-size: 18px;
   font-weight: 600;
