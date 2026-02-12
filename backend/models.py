@@ -13,6 +13,8 @@ class User(Base):
     password_hash = Column(String(255))
     role = Column(String(20), default="user")
     created_at = Column(DateTime, server_default=func.now())
+    bio = Column(String(500), nullable=True)
+    username = Column(String(50), nullable=True, unique=True)
 
     # ✅ ADD THIS BLOCK
     settings = relationship(

@@ -15,12 +15,21 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import models
 import schemas
 import crud
+import recommendations
 from database import engine, get_db
 from fastapi.staticfiles import StaticFiles
-
-
+from sqlalchemy import text
 
 models.Base.metadata.create_all(bind=engine)
+
+# Add new user columns if missing (e.g. bio, username)
+try:
+    with engine.connect() as conn:
+        conn.execute(text("ALTER TABLE users ADD COLUMN bio VARCHAR(500) NULL"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN username VARCHAR(50) NULL"))
+        conn.commit()
+except Exception:
+    pass  # columns already exist
 
 app = FastAPI()
 
@@ -133,6 +142,27 @@ def delete_account(
     db.delete(current_user)
     db.commit()
     return {"message": "Account deleted"}
+
+
+@app.put("/users/me", response_model=schemas.UserOut)
+def update_my_profile(
+    payload: schemas.ProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    from sqlalchemy.exc import IntegrityError
+    if payload.name is not None:
+        current_user.name = payload.name
+    if payload.bio is not None:
+        current_user.bio = payload.bio
+    if payload.username is not None:
+        existing = db.query(models.User).filter(models.User.username == payload.username).first()
+        if existing and existing.id != current_user.id:
+            raise HTTPException(status_code=409, detail="Username already taken")
+        current_user.username = payload.username
+    db.commit()
+    db.refresh(current_user)
+    return current_user
 
 
 @app.put("/users/{user_id}", response_model=schemas.UserOut)
@@ -271,10 +301,11 @@ def create_post(
     db.commit()
     db.refresh(post)
 
-    # ✅ ADD THESE
     post.like_count = 0
     post.liked = False
     post.saved = False
+    post.author_name = current_user.name
+    post.author_username = getattr(current_user, "username", None)
 
     return post
 
@@ -290,9 +321,66 @@ def get_feed(
         post.like_count = like_count
         post.liked = liked
         post.saved = saved
+        post.author_name = post.user.name if post.user else None
+        post.author_username = getattr(post.user, "username", None) if post.user else None
         feed.append(post)
 
     return feed
+
+
+@app.get("/posts/recommendations", response_model=list[schemas.PostOut])
+def get_recommendations(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """
+    Recommend next travel destinations using:
+    - Saved posts & liked posts (behavioral)
+    - Content/tags/descriptions (title, content, location) for semantic similarity.
+    """
+    saved_posts = crud.get_saved_posts(db, current_user.id)
+    liked_posts = crud.get_liked_posts(db, current_user.id)
+    results = crud.get_feed_posts(db, current_user.id)
+    # Exclude own posts from candidates
+    candidate_tuples = [
+        (post, like_count, liked, saved)
+        for post, like_count, liked, saved in results
+        if post.user_id != current_user.id
+    ]
+    if not candidate_tuples:
+        return []
+    profile_counter, preferred_authors = recommendations.build_user_profile(
+        saved_posts, liked_posts
+    )
+    candidates = [p for p, _, _, _ in candidate_tuples]
+    if profile_counter or preferred_authors:
+        ranked = recommendations.rank_candidates(
+            candidates, profile_counter, preferred_authors
+        )
+    else:
+        # No saved/liked yet: fall back to popularity (like_count)
+        ranked = [
+            p for p, _, _, _ in sorted(
+                candidate_tuples, key=lambda x: x[1], reverse=True
+            )
+        ]
+    post_to_meta = {
+        p.id: (lc, liked, saved)
+        for p, lc, liked, saved in candidate_tuples
+    }
+    feed = []
+    for post in ranked:
+        lc, liked, saved = post_to_meta.get(
+            post.id, (getattr(post, "like_count", 0), False, False)
+        )
+        post.like_count = lc
+        post.liked = liked
+        post.saved = saved
+        post.author_name = post.user.name if post.user else None
+        post.author_username = getattr(post.user, "username", None) if post.user else None
+        feed.append(post)
+    return feed
+
 
 @app.get("/posts/me", response_model=list[schemas.PostOut])
 def get_my_posts(
@@ -316,6 +404,8 @@ def get_my_posts(
             .first()
             is not None
         )
+        post.author_name = post.user.name if post.user else None
+        post.author_username = getattr(post.user, "username", None) if post.user else None
         feed.append(post)
 
     return feed
@@ -387,7 +477,9 @@ def my_saved_posts(
             .first()
             is not None
         )
-        post.saved = True   # because this is saved list
+        post.saved = True
+        post.author_name = post.user.name if post.user else None
+        post.author_username = getattr(post.user, "username", None) if post.user else None
         feed.append(post)
 
     return feed

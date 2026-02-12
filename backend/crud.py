@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from passlib.context import CryptContext
 import models, schemas
 
@@ -135,7 +135,13 @@ def get_post_by_id(db: Session, post_id: int):
 
 
 def get_posts_by_user(db: Session, user_id: int):
-    return db.query(models.Post).filter(models.Post.user_id == user_id).all()
+    return (
+        db.query(models.Post)
+        .options(joinedload(models.Post.user))
+        .filter(models.Post.user_id == user_id)
+        .order_by(models.Post.created_at.desc())
+        .all()
+    )
 
 
 def delete_post(db: Session, post_id: int, user_id: int):
@@ -202,11 +208,24 @@ def unsave_post(db: Session, user_id: int, post_id: int):
 def get_saved_posts(db: Session, user_id: int):
     return (
         db.query(models.Post)
+        .options(joinedload(models.Post.user))
         .join(models.PostSave, models.Post.id == models.PostSave.post_id)
         .filter(models.PostSave.user_id == user_id)
         .order_by(models.PostSave.created_at.desc())
         .all()
     )
+
+
+def get_liked_posts(db: Session, user_id: int):
+    """Posts the user has liked (with user loaded)."""
+    return (
+        db.query(models.Post)
+        .options(joinedload(models.Post.user))
+        .join(models.PostLike, models.Post.id == models.PostLike.post_id)
+        .filter(models.PostLike.user_id == user_id)
+        .all()
+    )
+
 
 from sqlalchemy import func, exists
 
@@ -233,6 +252,7 @@ def get_feed_posts(db: Session, user_id: int):
                 (models.PostSave.user_id == user_id)
             ).label("saved")
         )
+        .options(joinedload(models.Post.user))
         .outerjoin(like_count_subq, models.Post.id == like_count_subq.c.post_id)
         .order_by(models.Post.created_at.desc())
         .all()

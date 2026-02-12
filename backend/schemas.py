@@ -24,9 +24,17 @@ class UserOut(BaseModel):
     role: str
     created_at: datetime
     settings: UserSettingsResponse | None = None
+    bio: str | None = None
+    username: str | None = None
 
     class Config:
         from_attributes = True
+
+
+class ProfileUpdate(BaseModel):
+    name: str | None = None
+    bio: str | None = None
+    username: str | None = None
 
 
 class EmailUpdateRequest(BaseModel):
@@ -114,6 +122,8 @@ class PostOut(BaseModel):
     location: str | None
     created_at: datetime
     images: list[PostImageOut] = []
+    author_name: str | None = None
+    author_username: str | None = None
 
     like_count: int
     liked: bool

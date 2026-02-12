@@ -1,4 +1,4 @@
-import API from "../../api/api";
+import API, { API_BASE } from "../../api/api";
 import { useState } from "react";
 
 export default function PostCard({ post }) {
@@ -50,11 +50,19 @@ export default function PostCard({ post }) {
       {/* HEADER */}
       <div className="post-header">
         <div className="post-user">
-          <div className="avatar">👤</div>
+          <div className="avatar">
+            {post.author_name
+              ? post.author_name.trim().split(/\s+/).map((n) => n[0]).slice(0, 2).join("").toUpperCase() || "?"
+              : "👤"}
+          </div>
           <div>
-            <div className="username">Traveler</div>
-            {post.location && (
-              <div className="post-location">📍 {post.location}</div>
+            <div className="username">{post.author_name || "Traveler"}</div>
+            {(post.author_username || post.location) && (
+              <div className="post-location">
+                {post.author_username && `@${post.author_username}`}
+                {post.author_username && post.location && " · "}
+                {post.location && `📍 ${post.location}`}
+              </div>
             )}
           </div>
         </div>
@@ -85,7 +93,7 @@ export default function PostCard({ post }) {
       {post.images?.length > 0 && (
         <div className="post-image">
           <img
-            src={`http://localhost:8000/${post.images[0].image_url}`}
+            src={`${API_BASE}/${post.images[0].image_url}`}
             alt="post"
           />
         </div>

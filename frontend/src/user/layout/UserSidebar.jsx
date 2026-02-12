@@ -28,7 +28,7 @@ export default function UserSidebar() {
 
         <NavLink to="/dashboard/recommendations" className="sidebar-link">
           <Compass size={20} />
-          <span>Explore</span>
+          <span>Recommendation</span>
         </NavLink>
 
         <NavLink to="/dashboard/settings" className="sidebar-link">
